@@ -154,6 +154,11 @@ class VmsState extends ChangeNotifier {
       _vehicles.clear();
       _vehicles.addAll(list);
     } on ApiException catch (e) {
+      if (e.isUnauthorized) {
+        logout();
+        _vehiclesError = 'Your session has expired or is invalid. Please sign in again.';
+        return;
+      }
       _vehiclesError = e.message;
     } catch (e) {
       _vehiclesError = 'Unable to connect to VMS backend server. Please check your connection.';
@@ -174,39 +179,60 @@ class VmsState extends ChangeNotifier {
 
   /// Register a new vehicle: POST /api/vehicles
   Future<Vehicle> addVehicle(Vehicle vehicle) async {
-    final created = await _vehicleApiService.createVehicle(vehicle, token: _authToken);
-    _vehicles.insert(0, created);
-    notifyListeners();
-    return created;
+    try {
+      final created = await _vehicleApiService.createVehicle(vehicle, token: _authToken);
+      _vehicles.insert(0, created);
+      notifyListeners();
+      return created;
+    } on ApiException catch (e) {
+      if (e.isUnauthorized) {
+        logout();
+      }
+      rethrow;
+    }
   }
 
   /// Update an existing vehicle: PUT /api/vehicles/{id}
   Future<Vehicle> updateVehicle(Vehicle updatedVehicle) async {
-    final updated = await _vehicleApiService.updateVehicle(
-      updatedVehicle.id,
-      updatedVehicle,
-      token: _authToken,
-    );
-    final index = _vehicles.indexWhere((v) => v.id == updated.id);
-    if (index != -1) {
-      _vehicles[index] = updated;
-    } else {
-      _vehicles.insert(0, updated);
+    try {
+      final updated = await _vehicleApiService.updateVehicle(
+        updatedVehicle.id,
+        updatedVehicle,
+        token: _authToken,
+      );
+      final index = _vehicles.indexWhere((v) => v.id == updated.id);
+      if (index != -1) {
+        _vehicles[index] = updated;
+      } else {
+        _vehicles.insert(0, updated);
+      }
+      notifyListeners();
+      return updated;
+    } on ApiException catch (e) {
+      if (e.isUnauthorized) {
+        logout();
+      }
+      rethrow;
     }
-    notifyListeners();
-    return updated;
   }
 
   /// Delete a vehicle: DELETE /api/vehicles/{id}
   Future<bool> deleteVehicle(String id) async {
-    await _vehicleApiService.deleteVehicle(id, token: _authToken);
-    final before = _vehicles.length;
-    _vehicles.removeWhere((v) => v.id == id);
-    final removed = _vehicles.length < before;
-    if (removed) {
-      notifyListeners();
+    try {
+      await _vehicleApiService.deleteVehicle(id, token: _authToken);
+      final before = _vehicles.length;
+      _vehicles.removeWhere((v) => v.id == id);
+      final removed = _vehicles.length < before;
+      if (removed) {
+        notifyListeners();
+      }
+      return removed;
+    } on ApiException catch (e) {
+      if (e.isUnauthorized) {
+        logout();
+      }
+      rethrow;
     }
-    return removed;
   }
 
   /// Set search query.

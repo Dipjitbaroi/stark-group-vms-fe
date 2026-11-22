@@ -1,14 +1,13 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Centralized API and Environment Configuration for Stark Group VMS Flutter Web application.
-/// Resolves the API Base URL from the local `.env` file (`API_BASE_URL`).
-/// If `.env` is not present or the key is not defined, it defaults to localhost.
-/// NO credentials, usernames, or passwords are ever stored or configured in the frontend.
+/// Strictly resolves the API Base URL from the local `.env` file (`API_BASE_URL`).
+/// If `.env` is not present or key is missing, safely falls back to localhost.
 class ApiConfig {
   static const String _defaultLocalhostUrl = 'http://localhost:8080/api';
 
-  /// Resolves an environment key from flutter_dotenv.
-  static String get(String key, {String defaultValue = ''}) {
+  /// Resolves an environment key from flutter_dotenv (.env).
+  static String get(String key) {
     try {
       if (dotenv.isInitialized) {
         final val = dotenv.maybeGet(key);
@@ -17,27 +16,19 @@ class ApiConfig {
         }
       }
     } catch (_) {}
-    return defaultValue;
+    return '';
   }
 
-  /// Backend REST API Base URL
-  /// Strictly loaded from .env (API_BASE_URL or VMS_API_BASE_URL).
-  /// If not present, falls back to http://localhost:8080/api.
+  /// Backend REST API Base URL:
+  /// - Gets value from .env file (API_BASE_URL or VMS_API_BASE_URL)
+  /// - If .env is not present or key is missing, falls back to localhost:8080
   static String get baseUrl {
-    // 1. Resolve from loaded .env file
     final envUrl = get('API_BASE_URL');
     if (envUrl.isNotEmpty) return envUrl;
 
     final altUrl = get('VMS_API_BASE_URL');
     if (altUrl.isNotEmpty) return altUrl;
 
-    // 2. Resolve from compile-time --dart-define if supplied
-    const dartDefineUrl = String.fromEnvironment('API_BASE_URL');
-    if (dartDefineUrl.trim().isNotEmpty) {
-      return dartDefineUrl.trim();
-    }
-
-    // 3. Fallback to localhost when .env is not present
     return _defaultLocalhostUrl;
   }
 
