@@ -1,3 +1,4 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vms_web/main.dart';
@@ -5,6 +6,7 @@ import 'package:vms_web/main.dart';
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    dotenv.loadFromString(envString: 'API_BASE_URL=http://localhost:8080/api\n');
   });
 
   testWidgets('VMS App mounts and renders fleet title when authenticated', (WidgetTester tester) async {

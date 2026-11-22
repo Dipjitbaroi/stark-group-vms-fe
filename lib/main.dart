@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'models/vehicle.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_edit_vehicle_screen.dart';
@@ -9,7 +10,13 @@ import 'theme/app_theme.dart';
 import 'widgets/app_shell.dart';
 import 'widgets/primary_button.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env", isOptional: true);
+  } catch (e) {
+    debugPrint('Note: .env could not be loaded; falling back to environment: $e');
+  }
   runApp(const VmsApp());
 }
 
