@@ -57,7 +57,7 @@ class _PrimaryButtonState extends State<PrimaryButton> {
             disabledBackgroundColor: AppColors.corporateBlue.withValues(alpha: 0.5),
             disabledForegroundColor: AppColors.white.withValues(alpha: 0.8),
             elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 18),
+            padding: EdgeInsets.symmetric(horizontal: widget.height < 40 ? 12 : 18),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),

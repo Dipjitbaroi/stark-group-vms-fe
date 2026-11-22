@@ -136,6 +136,9 @@ class _VmsRootRouterState extends State<VmsRootRouter> {
         ? AppShellNav.register
         : AppShellNav.vehicles;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 500;
+
     // Build the corresponding view and header configuration
     switch (_currentView) {
       case _ActiveView.registerVehicle:
@@ -146,11 +149,14 @@ class _VmsRootRouterState extends State<VmsRootRouter> {
           primaryAction: OutlinedButton.icon(
             onPressed: _navigateToList,
             icon: const Icon(Icons.arrow_back_rounded, size: 16),
-            label: const Text('Back to Fleet'),
+            label: Text(isMobile ? 'Back' : 'Back to Fleet'),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.border, width: 1),
               foregroundColor: AppColors.charcoal,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 12 : 16,
+                vertical: isMobile ? 8 : 12,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -174,16 +180,19 @@ class _VmsRootRouterState extends State<VmsRootRouter> {
 
         return AppShell(
           currentNav: activeNav,
-          title: 'Edit Vehicle: $vehicleNumber',
+          title: isMobile ? 'Edit: $vehicleNumber' : 'Edit Vehicle: $vehicleNumber',
           subtitle: 'Modify specifications and fleet assignment for $vehicleNumber',
           primaryAction: OutlinedButton.icon(
             onPressed: _navigateToList,
             icon: const Icon(Icons.arrow_back_rounded, size: 16),
-            label: const Text('Back to Fleet'),
+            label: Text(isMobile ? 'Back' : 'Back to Fleet'),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.border, width: 1),
               foregroundColor: AppColors.charcoal,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 12 : 16,
+                vertical: isMobile ? 8 : 12,
+              ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -209,8 +218,9 @@ class _VmsRootRouterState extends State<VmsRootRouter> {
           title: 'Vehicles',
           subtitle: 'Overview and real-time registry of corporate fleet assets',
           primaryAction: PrimaryButton(
-            label: 'Register Vehicle',
+            label: isMobile ? 'Register' : 'Register Vehicle',
             icon: Icons.add_rounded,
+            height: isMobile ? 36 : 42,
             onPressed: _navigateToRegister,
           ),
           onNavSelected: (nav) {

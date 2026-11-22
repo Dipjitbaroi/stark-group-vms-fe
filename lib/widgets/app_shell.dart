@@ -35,12 +35,14 @@ class AppShell extends StatelessWidget {
   });
 
   static const double _breakpointTablet = 900;
+  static const double _breakpointMobile = 600;
   static const double _sidebarWidth = 260;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isCompact = screenWidth < _breakpointTablet;
+    final isMobile = screenWidth < _breakpointMobile;
 
     return Scaffold(
       backgroundColor: AppColors.softGray,
@@ -60,7 +62,11 @@ class AppShell extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildStandardHeader(context, showMenuButton: isCompact),
+                _buildStandardHeader(
+                  context,
+                  showMenuButton: isCompact,
+                  isMobile: isMobile,
+                ),
                 Expanded(
                   child: Container(
                     color: AppColors.softGray,
@@ -145,6 +151,13 @@ class AppShell extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (isDrawer)
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: AppColors.white, size: 22),
+                    tooltip: 'Close Menu',
+                    splashRadius: 20,
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
               ],
             ),
           ),
@@ -367,9 +380,16 @@ class AppShell extends StatelessWidget {
   /// Standard Page Header displayed in the workspace
   /// Left: Page title in Deep Blue (#1F4E79)
   /// Right: Primary action button (Register Vehicle or custom)
-  Widget _buildStandardHeader(BuildContext context, {required bool showMenuButton}) {
+  Widget _buildStandardHeader(
+    BuildContext context, {
+    required bool showMenuButton,
+    required bool isMobile,
+  }) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 14 : 24,
+        vertical: isMobile ? 10 : 16,
+      ),
       decoration: const BoxDecoration(
         color: AppColors.white,
         border: Border(
@@ -377,14 +397,20 @@ class AppShell extends StatelessWidget {
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (showMenuButton) ...[
-            IconButton(
-              icon: const Icon(Icons.menu_rounded, color: AppColors.deepBlue),
-              tooltip: 'Open Menu',
-              onPressed: () => Scaffold.of(context).openDrawer(),
+            Builder(
+              builder: (scaffoldContext) => IconButton(
+                icon: const Icon(Icons.menu_rounded, color: AppColors.deepBlue),
+                tooltip: 'Open Menu',
+                splashRadius: 20,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                onPressed: () => Scaffold.of(scaffoldContext).openDrawer(),
+              ),
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: isMobile ? 6 : 10),
           ],
           // Top Left Title
           Expanded(
@@ -394,17 +420,21 @@ class AppShell extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 22,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: isMobile ? 18 : 22,
                     fontWeight: FontWeight.w700,
                     color: AppColors.deepBlue,
                     letterSpacing: -0.3,
                   ),
                 ),
-                if (subtitle != null) ...[
+                if (subtitle != null && !isMobile) ...[
                   const SizedBox(height: 2),
                   Text(
                     subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
@@ -417,7 +447,7 @@ class AppShell extends StatelessWidget {
           ),
           // Top Right Action
           if (primaryAction != null) ...[
-            const SizedBox(width: 16),
+            SizedBox(width: isMobile ? 8 : 16),
             primaryAction!,
           ],
         ],
